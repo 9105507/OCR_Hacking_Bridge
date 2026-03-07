@@ -1,0 +1,7 @@
+[theme]
+# Corporate colors — edit these to match your ONG branding
+primaryColor = "#E63946"          # Main accent (buttons, links, sliders)
+backgroundColor = "#FFFFFF"       # Page background
+secondaryBackgroundColor = "#F1FAEE"  # Sidebar & card background
+textColor = "#1D3557"             # Body text
+font = "sans serif"

@@ -31,6 +31,41 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------------------------
+# Corporate branding CSS
+# ---------------------------------------------------------------------------
+
+_LOGO_PATH = "assets/logo.svg"   # <-- drop your ONG logo here
+
+st.markdown(
+    """
+    <style>
+    /* Header accent bar */
+    .stApp > header {
+        background-color: var(--primary-color, #E63946);
+    }
+    /* Sidebar logo */
+    .sidebar-logo {
+        display: block;
+        margin: 0 auto 1rem auto;
+        max-width: 180px;
+    }
+    /* Thumbnail previews */
+    .thumb-preview img {
+        max-height: 150px;
+        object-fit: contain;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+    }
+    /* Primary button override (matches theme) */
+    .stButton > button[kind="primary"] {
+        border-radius: 8px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
@@ -71,6 +106,13 @@ def _results_to_dataframe(results: list[PipelineResult]):
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
+    # --- ONG Logo ---
+    import os
+    if os.path.isfile(_LOGO_PATH):
+        st.image(_LOGO_PATH, use_container_width=True)
+    else:
+        st.markdown("<p style='text-align:center;color:#888;'>Coloca tu logo en<br><code>assets/logo.png</code></p>", unsafe_allow_html=True)
+
     st.title("⚙️ Configuración")
 
     model_name = st.text_input(
@@ -124,7 +166,9 @@ if uploaded_files:
         cols = st.columns(min(len(image_files), 5))
         for idx, uf in enumerate(image_files):
             with cols[idx % len(cols)]:
-                st.image(uf, caption=uf.name, width="stretch")
+                st.markdown('<div class="thumb-preview">', unsafe_allow_html=True)
+                st.image(uf, caption=uf.name, width=150)
+                st.markdown('</div>', unsafe_allow_html=True)
 
     pdf_files = [f for f in uploaded_files if f.name.lower().endswith(".pdf")]
     if pdf_files:
