@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
 import httpx
 
@@ -62,8 +63,10 @@ class OllamaVisionClient:
             "prompt": prompt,
             "images": [image_base64],
             "stream": True,
+            "think": False,
         }
 
+        logger.info("[LLM] Sending request to %s (model=%s) ...", url, self.model)
         try:
             with self._client.stream("POST", url, json=payload) as response:
                 if response.status_code == 404:
@@ -72,7 +75,9 @@ class OllamaVisionClient:
                         f"Run: ollama pull {self.model}"
                     )
                 response.raise_for_status()
-                return self._read_streamed_response(response)
+                result = self._read_streamed_response(response)
+                logger.info("[LLM] Response received (%d chars).", len(result))
+                return result
         except httpx.ConnectError as exc:
             raise OllamaConnectionError(
                 f"Cannot connect to Ollama at {self.base_url}. "
@@ -115,4 +120,6 @@ class OllamaVisionClient:
                     break
             except json.JSONDecodeError:
                 logger.warning("Skipping non-JSON line from Ollama: %s", line[:120])
-        return "".join(chunks)
+        text = "".join(chunks)
+        # Strip Qwen3 <think>…</think> reasoning blocks if present
+        return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()

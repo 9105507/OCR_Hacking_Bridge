@@ -60,7 +60,9 @@ def classify_document(
     On LLM failure the result defaults to ``is_valid_document=False``.
     """
     try:
+        logger.info("[CLASSIFY] Starting classification for %s ...", doc.id)
         raw_response = client.generate(CLASSIFICATION_PROMPT, doc.base64_image)
+        logger.info("[CLASSIFY] Classification done for %s.", doc.id)
         logger.debug("Classification raw response for %s: %s", doc.id, raw_response)
     except Exception:
         logger.exception("LLM call failed during classification of %s", doc.id)

@@ -28,7 +28,11 @@ def process_document(
     """Run classify → extract → validate for a single document."""
 
     # --- 1. Classification (fail-fast) ---
+    logger.info("[PIPELINE] ===== Processing %s =====", doc.id)
     classification: ClassificationResult = classify_document(client, doc)
+    logger.info("[PIPELINE] Classification result: type=%s, valid=%s, legible=%s, conf=%.2f",
+                classification.document_type, classification.is_valid_document,
+                classification.is_legible, classification.confidence)
 
     if not classification.is_valid_document or not classification.is_legible:
         return PipelineResult(
@@ -52,9 +56,13 @@ def process_document(
         )
 
     # --- 2. Date extraction ---
+    logger.info("[PIPELINE] Starting date extraction for %s ...", doc.id)
     extraction: ExtractionResult = extract_dates(
         client, doc, doc_type=classification.document_type,
     )
+    logger.info("[PIPELINE] Extraction result: insc=%s, reno=%s, conf=%.2f",
+                extraction.fecha_inscripcion_raw, extraction.fecha_renovacion_raw,
+                extraction.confidence)
 
     if extraction.confidence < config.EXTRACTION_CONFIDENCE_THRESHOLD:
         return PipelineResult(
@@ -71,7 +79,10 @@ def process_document(
         )
 
     # --- 3. Validation ---
+    logger.info("[PIPELINE] Starting validation for %s ...", doc.id)
     validation: ValidationResult = validate_document(extraction)
+    logger.info("[PIPELINE] Validation result: status=%s, motivo=%s",
+                validation.status.value, validation.motivo)
 
     return PipelineResult(
         id_documento=doc.id,

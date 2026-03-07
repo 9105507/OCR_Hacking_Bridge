@@ -68,7 +68,9 @@ def extract_dates(
     prompt = _EXTRACTION_PROMPT_TEMPLATE.format(doc_type=doc_type)
 
     try:
+        logger.info("[EXTRACT] Starting extraction for %s (type=%s) ...", doc.id, doc_type)
         raw_response = client.generate(prompt, doc.base64_image)
+        logger.info("[EXTRACT] Extraction done for %s.", doc.id)
         logger.debug("Extraction raw response for %s: %s", doc.id, raw_response)
     except Exception:
         logger.exception("LLM call failed during extraction of %s", doc.id)
