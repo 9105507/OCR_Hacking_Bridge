@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 _CSV_COLUMNS = [
     "id_documento",
+    "tipo_documento",
     "fecha_inscripcion",
     "fecha_renovacion",
     "estado_validacion",

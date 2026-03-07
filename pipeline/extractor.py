@@ -13,10 +13,15 @@ logger = logging.getLogger(__name__)
 
 _EXTRACTION_PROMPT_TEMPLATE = """\
 This image is a Spanish {doc_type} unemployment document.
-Extract ONLY these two dates — do NOT extract any names, DNI numbers, or addresses:
+Extract ONLY these two dates — do NOT extract any names, DNI/NIE numbers, or addresses:
 
-1. "fecha_inscripcion": The initial registration / inscription date (Fecha de Inscripción).
-2. "fecha_renovacion": The first renewal date (Fecha de la próxima renovación / Próxima renovación de la demanda).
+1. "fecha_inscripcion": The initial registration date.
+   - On DARDE (Madrid): labeled "Fecha de Inscripción" or "Fecha alta".
+   - On DARDO (Catalonia): labeled "Data d'inscripció" or "Data d'alta".
+
+2. "fecha_renovacion": The next renewal date.
+   - On DARDE: labeled "Próxima renovación de la demanda" or "Fecha de renovación".
+   - On DARDO: labeled "Propera renovació de la demanda" or "Data de renovació".
 
 Dates may appear as "dd/mm/yyyy", "dd de mes de yyyy", "dd-mm-yyyy", or similar.
 

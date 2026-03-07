@@ -76,6 +76,7 @@ class PipelineResult(BaseModel):
     """Single row in the exported CSV / JSON."""
 
     id_documento: str
+    tipo_documento: str = "UNKNOWN"
     fecha_inscripcion: str | None = None
     fecha_renovacion: str | None = None
     estado_validacion: str

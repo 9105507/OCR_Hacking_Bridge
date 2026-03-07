@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 CLASSIFICATION_PROMPT = """\
 Analyze this image and determine:
 1. Is it a legible photograph or scan (not blurry/cut off)?
-2. Is it a Spanish official unemployment document (DARDE from Madrid or DARDO from Cataluña)?
+2. Is it a Spanish official unemployment document?
+   - DARDE: from Comunidad de Madrid (in Spanish/Castilian).
+   - DARDO: from Cataluña / Catalonia (may contain Catalan text).
 
 Reply ONLY with a JSON object, no extra text:
 {"is_document": true/false, "is_legible": true/false, "type": "DARDE" or "DARDO" or "UNKNOWN", "confidence": 0.0 to 1.0}

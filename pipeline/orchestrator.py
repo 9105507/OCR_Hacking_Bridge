@@ -33,6 +33,7 @@ def process_document(
     if not classification.is_valid_document or not classification.is_legible:
         return PipelineResult(
             id_documento=doc.id,
+            tipo_documento=classification.document_type,
             estado_validacion=ValidationStatus.REQUIERE_REVISION.value,
             motivo=classification.reason or "Documento no válido o ilegible.",
             nivel_confianza=classification.confidence,
@@ -41,6 +42,7 @@ def process_document(
     if classification.confidence < config.CLASSIFICATION_CONFIDENCE_THRESHOLD:
         return PipelineResult(
             id_documento=doc.id,
+            tipo_documento=classification.document_type,
             estado_validacion=ValidationStatus.REQUIERE_REVISION.value,
             motivo=(
                 f"Confianza de clasificación baja ({classification.confidence:.2f}). "
@@ -57,6 +59,7 @@ def process_document(
     if extraction.confidence < config.EXTRACTION_CONFIDENCE_THRESHOLD:
         return PipelineResult(
             id_documento=doc.id,
+            tipo_documento=classification.document_type,
             fecha_inscripcion=extraction.fecha_inscripcion_raw,
             fecha_renovacion=extraction.fecha_renovacion_raw,
             estado_validacion=ValidationStatus.REQUIERE_REVISION.value,
@@ -72,6 +75,7 @@ def process_document(
 
     return PipelineResult(
         id_documento=doc.id,
+        tipo_documento=classification.document_type,
         fecha_inscripcion=(
             validation.fecha_inscripcion.isoformat()
             if validation.fecha_inscripcion

@@ -54,6 +54,7 @@ def _results_to_dataframe(results: list[PipelineResult]):
     df.rename(
         columns={
             "id_documento": "ID Documento",
+            "tipo_documento": "Tipo",
             "fecha_inscripcion": "Fecha Inscripción",
             "fecha_renovacion": "Fecha Renovación",
             "estado_validacion": "Estado",
@@ -123,7 +124,7 @@ if uploaded_files:
         cols = st.columns(min(len(image_files), 5))
         for idx, uf in enumerate(image_files):
             with cols[idx % len(cols)]:
-                st.image(uf, caption=uf.name, use_container_width=True)
+                st.image(uf, caption=uf.name, width="stretch")
 
     pdf_files = [f for f in uploaded_files if f.name.lower().endswith(".pdf")]
     if pdf_files:
@@ -214,12 +215,13 @@ if "last_results" in st.session_state and st.session_state["last_results"]:
 
     # Table
     df = _results_to_dataframe(results)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width="stretch", hide_index=True)
 
     # Per-document detail
     for r in results:
         icon = STATUS_COLORS.get(r.estado_validacion, "⚪")
-        with st.expander(f"{icon} {r.id_documento} — {r.estado_validacion}"):
+        with st.expander(f"{icon} {r.id_documento} — {r.tipo_documento} — {r.estado_validacion}"):
+            st.markdown(f"**Tipo documento:** `{r.tipo_documento}`")
             c1, c2 = st.columns(2)
             c1.markdown(f"**Fecha Inscripción:** `{r.fecha_inscripcion or '—'}`")
             c2.markdown(f"**Fecha Renovación:** `{r.fecha_renovacion or '—'}`")
@@ -233,7 +235,7 @@ if "last_results" in st.session_state and st.session_state["last_results"]:
         buf = io.StringIO()
         writer = csv_mod.DictWriter(
             buf,
-            fieldnames=["id_documento", "fecha_inscripcion", "fecha_renovacion",
+            fieldnames=["id_documento", "tipo_documento", "fecha_inscripcion", "fecha_renovacion",
                          "estado_validacion", "motivo", "nivel_confianza"],
         )
         writer.writeheader()

@@ -9,7 +9,7 @@ PROGRAM_START_DATE: date = date(2025, 3, 1)
 # --- Ollama Settings ---
 OLLAMA_BASE_URL: str = "http://localhost:11434"
 OLLAMA_MODEL: str = "qwen3-vl:latest"
-OLLAMA_TIMEOUT_SECONDS: int = 120
+OLLAMA_TIMEOUT_SECONDS: int = 300
 
 # --- Paths ---
 OUTPUT_DIR: Path = Path("output")
