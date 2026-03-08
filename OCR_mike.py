@@ -5,6 +5,7 @@ import re
 import unicodedata
 from pathlib import Path
 import numpy as np
+from datetime import datetime
 
 
 def normalizar_texto(texto: str) -> str:
@@ -68,6 +69,69 @@ def extraer_campos(texto: str) -> dict:
         resultado["fecha_emision"] = m_emi.group(1)
 
     return resultado
+
+
+def parsear_fecha(fecha_str: str):
+    """
+    Convierte una fecha en formato dd/mm/yyyy o dd-mm-yyyy a datetime.
+    Devuelve None si la fecha no es válida o viene vacía.
+    """
+    if not fecha_str:
+        return None
+
+    fecha_str = fecha_str.strip().replace("-", "/")
+
+    for formato in ("%d/%m/%Y", "%d/%m/%y"):
+        try:
+            return datetime.strptime(fecha_str, formato)
+        except ValueError:
+            pass
+
+    return None
+
+
+def evaluar_validez_documento(fecha_inscripcion: str, fecha_renovacion: str) -> dict:
+    """
+    Evalúa si el documento es válido según la condición:
+        inscripción < 01/03/2025 < renovación
+
+    Devuelve un diccionario con:
+      - valido: True / False / None
+      - motivo: explicación del resultado
+    """
+    fecha_referencia = datetime.strptime("01/03/2025", "%d/%m/%Y")
+
+    fi = parsear_fecha(fecha_inscripcion)
+    fr = parsear_fecha(fecha_renovacion)
+
+    if fi is None and fr is None:
+        return {
+            "valido": None,
+            "motivo": "No se pudieron interpretar ni la fecha de inscripción ni la de renovación."
+        }
+
+    if fi is None:
+        return {
+            "valido": None,
+            "motivo": "No se pudo interpretar la fecha de inscripción."
+        }
+
+    if fr is None:
+        return {
+            "valido": None,
+            "motivo": "No se pudo interpretar la fecha de renovación."
+        }
+
+    valido = fi < fecha_referencia < fr
+
+    return {
+        "valido": valido,
+        "motivo": (
+            "El documento es válido."
+            if valido
+            else "El documento no es válido porque no cumple: inscripción < 01/03/2025 < renovación."
+        )
+    }
 
 
 def aplicar_ocr(file_path, lang="spa"):
@@ -142,6 +206,7 @@ if __name__ == "__main__":
 
     try:
         resultado = aplicar_ocr(ruta_imagen, lang="spa")
+
         # Guardar OCR completo en un .txt
         ruta_txt = carpeta_salida / f"{ruta_imagen.stem}.txt"
         with open(ruta_txt, "w", encoding="utf-8") as f:
@@ -150,6 +215,13 @@ if __name__ == "__main__":
         campos = extraer_campos(resultado)
         print("\nCampos extraídos:")
         print(campos)
+
+        validacion = evaluar_validez_documento(
+            campos["fecha_inscripcion"],
+            campos["fecha_renovacion"]
+        )
+        print("\nValidación del documento:")
+        print(validacion)
 
     except Exception as e:
         print(f"Error: {e}")
